@@ -1,8 +1,5 @@
 name: Deploy Node Project
-on:
-    workflow_dispatch:
-        branches:
-            - workflows
+on: workflow_dispatch
 jobs:
     lint:
         runs-on: ubuntu-latest
