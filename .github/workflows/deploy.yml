@@ -13,6 +13,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+      - name: Caching Dependancies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json')}}
       - name: Install dependancies
         run: npm ci
       - name: Run lint
@@ -30,6 +35,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+      - name: Caching Dependancies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json')}}
       - name: Install dependancies
         run: npm ci
       - name: Run Build
@@ -51,6 +61,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+      - name: Caching Dependancies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json')}}
       - name: Install dependancies
         run: npm ci
       - name: Output the file name
