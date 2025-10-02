@@ -1,48 +1,59 @@
 name: Deploy Node Project
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
 jobs:
-    lint:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Clone The Repository
-              uses: actions/checkout@v5
-            - name: Install node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 18
-            - name: Install dependancies
-              run: npm ci
-            - name: Run lint
-              run: npm run lint
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone The Repository
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependancies
+        run: npm ci
+      - name: Run lint
+        run: npm run lint
 
-    build:
-        runs-on: ubuntu-latest
-        needs: [lint]
-        steps:
-            - name: Clone repository
-              uses: actions/checkout@v4
-            - name: Install node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 18
-            - name: Install dependancies
-              run: npm ci
-            - name: Run Build
-              run: npm run build
-            - name: Deploy
-              run: echo "Deploying...."
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    outputs:
+      script-file: ${{steps.publish.outputs.jsfile}}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependancies
+        run: npm ci
+      - name: Run Build
+        run: npm run build
+      - name: Publish JS file
+        id: publish
+        run: find dist/assets/*.js -type f -execdir echo 'jsfile={}' >> $GITHUB_OUTPUT
+      - name: Deploy
+        run: echo "Deploying...."
 
-    test:
-        runs-on: ubuntu-latest
-        needs: [lint, build]
-        steps:
-            - name: Clone the repo
-              uses: actions/checkout@v4
-            - name: Install node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 18
-            - name: Install dependancies
-              run: npm ci
-            - name: Run test
-              run: npm run test
+  test:
+    runs-on: ubuntu-latest
+    # needs: [lint, build]
+    needs: build
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependancies
+        run: npm ci
+      - name: Output the file name
+        run: echo "${{needs.build.outputs.script-file}}"
+      - name: Run test
+        run: npm run test
